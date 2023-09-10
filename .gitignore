@@ -1,0 +1,8 @@
+.idea
+specialtopics.iml
+
+*.class
+edu.princeton.cs.algs4
+
+edu
+.DS_Store
