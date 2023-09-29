@@ -10,7 +10,7 @@ public class PercolationStats {
 
     // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
-        if (n < 1 || trials < 0) {
+        if (n < 1 || trials < 1) {
             throw new IllegalArgumentException();
         }
 
@@ -62,7 +62,7 @@ public class PercolationStats {
     String confidence = runner.confidenceLo() + ", " + runner.confidenceHi();
     StdOut.println("mean                    = " + runner.mean());
     StdOut.println("stddev                  = " + runner.stddev());
-    StdOut.println("95% confidence interval = " + confidence);
+    StdOut.println("95% confidence interval = [" + confidence + "]");
    }
 
 }
