@@ -41,19 +41,19 @@ public class FastCollinearPoints {
             Arrays.sort(copy2, origin.slopeOrder());
 
             int count = 1;
-            Point lineBeginning = null;
+            Point origin2 = null;
 
             for (int j = 0; j < copy2.length - 1; j++) {
                 if (copy2[j].slopeTo(origin) == copy2[j + 1].slopeTo(origin)) {
                     count++;
 
                     if (count == 2) {
-                        lineBeginning = copy2[j];
+                        origin2 = copy2[j];
                         count++;
                     }
 
                     else if (count >= 4 && j + 1 == copy2.length - 1) {
-                        if (lineBeginning.compareTo(origin) > 0) {
+                        if (origin2.compareTo(origin) > 0) {
                             segments.add(new LineSegment(origin, copy2[j + 1]));
                         }
 
@@ -62,7 +62,7 @@ public class FastCollinearPoints {
                 }
 
                 else if (count >= 4) {
-                    if (lineBeginning.compareTo(origin) > 0) {
+                    if (origin2.compareTo(origin) > 0) {
                         segments.add(new LineSegment(origin, copy2[j]));
                     }
                     
