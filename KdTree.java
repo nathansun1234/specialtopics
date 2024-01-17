@@ -56,17 +56,17 @@ public class KdTree {
         }
         else if (!contains(p)) {
             // call helper method for insertion
-            inserthelper(root, p, true);
+            inserthelper(root, p);
             size++;
         }
     }
 
     // helper method for point insertion
-    private void inserthelper(Node root, Point2D p, boolean horizontal) {
+    private void inserthelper(Node node, Point2D p) {
         Comparator<Point2D> comparator;
 
         // choose comparator based on the current level (X_ORDER or Y_ORDER)
-        if (horizontal) {
+        if (node.level % 2 == 0) {
             comparator = Point2D.X_ORDER;
         }
         else {
@@ -74,21 +74,21 @@ public class KdTree {
         }
 
         // compare and insert the point recursively using our comparator
-        if (comparator.compare(root.point, p) > 0) { // if the point is smaller, then we go left
-            if (root.left == null) { // if theres no more points to the left then we put our point there
-                root.left = new Node(p, null, null, root.level + 1);
+        if (comparator.compare(node.point, p) > 0) { // if the point is smaller, then we go left
+            if (node.left == null) { // if theres no more points to the left then we put our point there
+                node.left = new Node(p, null, null, node.level + 1);
             }
             else { // if there are then we keep going
-                inserthelper(root.left, p, !horizontal);
+                inserthelper(node.left, p);
             }
         }
         // if the point is bigger, then we go right
         else { // if theres no more points to the right then we put our point there
-            if (root.right == null) {
-                root.right = new Node(p, null, null, root.level + 1);
+            if (node.right == null) {
+                node.right = new Node(p, null, null, node.level + 1);
             }
             else { // if there are then we keep going
-                inserthelper(root.right, p, !horizontal);
+                inserthelper(node.right, p);
             }
         }
     }
@@ -103,16 +103,16 @@ public class KdTree {
         }
         else {
             // call helper method for point containment check
-            return containshelper(root, p, true);
+            return containshelper(root, p);
         }
     }
 
     // helper method for point containment check
-    private boolean containshelper(Node root, Point2D p, boolean horizontal) {
+    private boolean containshelper(Node root, Point2D p) {
         Comparator<Point2D> comparator;
 
         // choose comparator based on the current level (X_ORDER or Y_ORDER)
-        if (horizontal) {
+        if (root.level % 2 == 0) {
             comparator = Point2D.X_ORDER;
         }
         else {
@@ -125,7 +125,7 @@ public class KdTree {
         }
         else if (comparator.compare(root.point, p) > 0) { // if its too big then we look to the left
             if (root.left != null) {
-                return containshelper(root.left, p, !horizontal);
+                return containshelper(root.left, p);
             }
             else { // we know weve hit the min if theres no more points to the left, at this point we can say that it doesnt contain it
                 return false;
@@ -133,7 +133,7 @@ public class KdTree {
         }
         else {
             if (root.right != null) { // if its too small then we look to the right
-                return containshelper(root.right, p, !horizontal);
+                return containshelper(root.right, p);
             }
             else { // we know weve hit the max if theres no more points to the right, at this point we can say that it doesnt contain it
                 return false;
@@ -147,11 +147,11 @@ public class KdTree {
     }
 
     // helper method for drawing points recursively
-    private void drawhelper(Node n) {
-        if (n != null) { // this is to check if we're still in the range of the points, if its ever null we've hit the smallest or largest
-            StdDraw.point(n.point.x(), n.point.y());
-            drawhelper(n.left); // draw all the points to the left
-            drawhelper(n.right); // draw all the points to the right
+    private void drawhelper(Node root) {
+        if (root != null) { // this is to check if we're still in the range of the points, if its ever null we've hit the smallest or largest
+            StdDraw.point(root.point.x(), root.point.y());
+            drawhelper(root.left); // draw all the points to the left
+            drawhelper(root.right); // draw all the points to the right
         }
         else { // when we hit the edge of the tree we start going back up the recursion loop
             return;
@@ -170,60 +170,60 @@ public class KdTree {
     }
 
     // helper method for range search
-    private List<Point2D> rangehelper(Node n, RectHV rect) {
+    private List<Point2D> rangehelper(Node root, RectHV rect) {
         // base case: if the current node is null, return up an empty list
-        if (n == null) {
+        if (root == null) {
             return Collections.emptyList();
         }
 
         // check if the level is even or odd to decide whether to compare by x or y
-        if (n.level % 2 == 0) {
+        if (root.level % 2 == 0) {
             // if the current node's x-coordinate is within the rectangle's x-range
-            if (n.point.x() >= rect.xmin() && n.point.x() <= rect.xmax()) {
+            if (root.point.x() >= rect.xmin() && root.point.x() <= rect.xmax()) {
                 List<Point2D> current = new ArrayList<>();
 
                 // check if the current node is within the rectangle and add it to the list
-                if (rect.contains(n.point)) {
-                    current.add(n.point);
+                if (rect.contains(root.point)) {
+                    current.add(root.point);
                 }
 
                 // recursively search both left and right subtrees, adding all the points we find to our list
-                current.addAll(rangehelper(n.left, rect));
-                current.addAll(rangehelper(n.right, rect));
+                current.addAll(rangehelper(root.left, rect));
+                current.addAll(rangehelper(root.right, rect));
 
                 return current;
             }
             else {
                 // if the current node isnt in the rectangle's x range, we search either left or right depending which way it is
-                if (n.point.x() > rect.xmax()) {
-                    return rangehelper(n.left, rect);
+                if (root.point.x() > rect.xmax()) {
+                    return rangehelper(root.left, rect);
                 }
                 else {
-                    return rangehelper(n.right, rect);
+                    return rangehelper(root.right, rect);
                 }
             }
         }
         else { // level is odd, so compare by Y-coordinate
             // same logic as before
-            if (n.point.y() >= rect.ymin() && n.point.y() <= rect.ymax()) {
+            if (root.point.y() >= rect.ymin() && root.point.y() <= rect.ymax()) {
                 List<Point2D> current = new ArrayList<>();
 
-                if (rect.contains(n.point)) {
-                    current.add(n.point);
+                if (rect.contains(root.point)) {
+                    current.add(root.point);
                 }
 
-                current.addAll(rangehelper(n.left, rect));
-                current.addAll(rangehelper(n.right, rect));
+                current.addAll(rangehelper(root.left, rect));
+                current.addAll(rangehelper(root.right, rect));
 
                 return current;
             }
             else {
 
-                if (n.point.y() > rect.ymax()) {
-                    return rangehelper(n.left, rect);
+                if (root.point.y() > rect.ymax()) {
+                    return rangehelper(root.left, rect);
                 }
                 else {
-                    return rangehelper(n.right, rect);
+                    return rangehelper(root.right, rect);
                 }
             }
         }
@@ -242,60 +242,60 @@ public class KdTree {
     }
 
     // helper method for nearest point
-    private Point2D nearest(Point2D nearest, Point2D p, Node node, RectHV rect, double bestdistance) {
-        if (node == null) {
+    private Point2D nearest(Point2D nearest, Point2D p, Node root, RectHV rect, double bestdistance) {
+        if (root == null) {
             return nearest;
         }
 
-        double currentdistance = node.point.distanceSquaredTo(p);
+        double currentdistance = root.point.distanceSquaredTo(p);
 
         // set new best if current is closer
         if (bestdistance > currentdistance) {
             bestdistance = currentdistance;
-            nearest = node.point;
+            nearest = root.point;
         }
 
-        if (node.level % 2 == 0) { // if its even we go horizontally
+        if (root.level % 2 == 0) { // if its even we go horizontally
             // define the search area rectangles
             // x vals: from the min x we pass in to the current x, and from the current x to the max x we pass in
             // y vals: same as we passed in
             // this way, as the loop recurses, the area gets smaller and smaller
-            RectHV left = new RectHV(rect.xmin(), rect.ymin(), node.point.x(), rect.ymax());
-            RectHV right = new RectHV(node.point.x(), rect.ymin(), rect.xmax(), rect.ymax());
+            RectHV left = new RectHV(rect.xmin(), rect.ymin(), root.point.x(), rect.ymax());
+            RectHV right = new RectHV(root.point.x(), rect.ymin(), rect.xmax(), rect.ymax());
 
-            if (p.x() < node.point.x()) { // if the target point is to the left of the current point
-                nearest = nearest(nearest, p, node.left, left, bestdistance); // therefore we search the rectangle to the left using the left point to the left to start
+            if (p.x() < root.point.x()) { // if the target point is to the left of the current point
+                nearest = nearest(nearest, p, root.left, left, bestdistance); // therefore we search the rectangle to the left using the left point to the left to start
 
                 // look at the other tree ONLY if its possible that it contains a closer point
                 if (p.distanceSquaredTo(nearest) >= right.distanceSquaredTo(p)) {
-                    nearest = nearest(nearest, p, node.right, right, p.distanceSquaredTo(nearest));
+                    nearest = nearest(nearest, p, root.right, right, p.distanceSquaredTo(nearest));
                 }
             }
             else { // otherwise the target point is to the right of the current point
-                nearest = nearest(nearest, p, node.right, right, bestdistance); // we search the rectangle to the right using the next point to the right to start
+                nearest = nearest(nearest, p, root.right, right, bestdistance); // we search the rectangle to the right using the next point to the right to start
                 
                 // look at the other tree ONLY if its possible that it contains a closer point
                 if (p.distanceSquaredTo(nearest) >= left.distanceSquaredTo(p)) {
-                    nearest = nearest(nearest, p, node.left, left, p.distanceSquaredTo(nearest));
+                    nearest = nearest(nearest, p, root.left, left, p.distanceSquaredTo(nearest));
                 }
             } 
         }
         else { // if its odd we go vertical. rest of loop uses same logic as before
-            RectHV below = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), node.point.y());
-            RectHV above = new RectHV(rect.xmin(), node.point.y(), rect.xmax(), rect.ymax());
+            RectHV below = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), root.point.y());
+            RectHV above = new RectHV(rect.xmin(), root.point.y(), rect.xmax(), rect.ymax());
 
-            if (p.y() < node.point.y()) {
-                nearest = nearest(nearest, p, node.left, below, bestdistance);
+            if (p.y() < root.point.y()) {
+                nearest = nearest(nearest, p, root.left, below, bestdistance);
 
                 if (p.distanceSquaredTo(nearest) >= above.distanceSquaredTo(p)) {
-                    nearest= nearest(nearest, p, node.right, above, p.distanceSquaredTo(nearest));
+                    nearest= nearest(nearest, p, root.right, above, p.distanceSquaredTo(nearest));
                 } 
             }
             else {
-                nearest = nearest(nearest, p, node.right, above, bestdistance);
+                nearest = nearest(nearest, p, root.right, above, bestdistance);
 
                 if (p.distanceSquaredTo(nearest) >= below.distanceSquaredTo(p)) {
-                    nearest = nearest(nearest, p, node.left, below, p.distanceSquaredTo(nearest));
+                    nearest = nearest(nearest, p, root.left, below, p.distanceSquaredTo(nearest));
                 }
             }
         }
