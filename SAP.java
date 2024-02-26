@@ -52,7 +52,7 @@ public class SAP {
             int ancestor = -1;
             int currentShortest = Integer.MAX_VALUE;
 
-            for (int n = 0; n < this.G.V(); n++) {
+            for (int n = 0; n < G.V(); n++) {
                 int distance = vbsf.distTo(n) + wbsf.distTo(n);
                 if (vbsf.hasPathTo(n) && wbsf.hasPathTo(n) && (distance < currentShortest)) {
                     ancestor = n;
@@ -72,14 +72,14 @@ public class SAP {
 
         for (Object obj : v) {
             Integer asInt = (Integer) obj;
-            if ( obj == null || asInt < 0 || asInt >= this.G.V()) {
+            if (obj == null || asInt < 0 || asInt >= G.V()) {
                 throw new IllegalArgumentException();
             }    
         }
             
         for (Object obj : w) {
             Integer asInt = (Integer) obj;
-            if ( obj == null || asInt < 0 || asInt >= this.G.V()) {
+            if (obj == null || asInt < 0 || asInt >= G.V()) {
                 throw new IllegalArgumentException();
             }    
         }
@@ -106,14 +106,14 @@ public class SAP {
 
         for (Object obj : v) {
             Integer asInt = (Integer) obj;
-            if ( obj == null || asInt < 0 || asInt >= this.G.V()) {
+            if (obj == null || asInt < 0 || asInt >= G.V()) {
                 throw new IllegalArgumentException();
             }    
         }
             
         for (Object obj : w) {
             Integer asInt = (Integer) obj;
-            if ( obj == null || asInt < 0 || asInt >= this.G.V()) {
+            if (obj == null || asInt < 0 || asInt >= G.V()) {
                 throw new IllegalArgumentException();
             }    
         }
@@ -124,7 +124,7 @@ public class SAP {
         int ancestor = -1;
         int currentShortest = Integer.MAX_VALUE;
 
-        for (int n = 0; n < this.G.V(); n++) {
+        for (int n = 0; n < G.V(); n++) {
             int distance = vbsf.distTo(n) + wbsf.distTo(n);
             if (vbsf.hasPathTo(n) && wbsf.hasPathTo(n) && (distance < currentShortest)) {
                 ancestor = n;

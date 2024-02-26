@@ -11,7 +11,7 @@ import edu.princeton.cs.algs4.DirectedDFS;
 public class WordNet {
 
     private Map<String, Bag<Integer>> nounsToIDs;
-    private Map<Integer, String> IDsToSynsets;
+    private Map<Integer, String> iDsToSynsets;
     private SAP sap;
     private Digraph G; 
 
@@ -22,24 +22,24 @@ public class WordNet {
         }
         else {
             nounsToIDs = new HashMap<String, Bag<Integer>>();
-            IDsToSynsets = new HashMap<Integer, String>();
+            iDsToSynsets = new HashMap<Integer, String>();
 
             In in = new In(synsets);
 
             while (!in.isEmpty()) {
                 // gets each line of file
                 String[] line = in.readLine().split(",");
-                Integer id = Integer.parseInt(line[0]);
+                int id = Integer.parseInt(line[0]);
 
                 // splits line into nouns
                 String[] nouns = line[1].split(" ");
 
                 // maps id to corresponding synset
-                IDsToSynsets.put(id, line[1]);
+                iDsToSynsets.put(id, line[1]);
 
                 // maps noun to corresponding id for each noun
                 for (String noun : nouns) {
-                    //if it alr has the noun then we just need to add the id
+                    // if it alr has the noun then we just need to add the id
                     if (nounsToIDs.containsKey(noun)) {
                         nounsToIDs.get(noun).add(id);
                     }
@@ -52,7 +52,7 @@ public class WordNet {
                 }
             }
 
-            G = new Digraph(IDsToSynsets.size());
+            G = new Digraph(iDsToSynsets.size());
 
             in = new In(hypernyms);
 
@@ -60,9 +60,12 @@ public class WordNet {
                 // gets each line of file
                 String[] line = in.readLine().split(",");
 
+                // gets the first word in the line as a vertex
+                int vertex = Integer.parseInt(line[0]);
+
                 // add edge for each word in the line except the first to the first
                 for (int i = 1; i < line.length; i++) {
-                    G.addEdge(Integer.parseInt(line[0]), Integer.parseInt(line[i]));
+                    G.addEdge(vertex, Integer.parseInt(line[i]));
                 }
             }
 
@@ -79,7 +82,7 @@ public class WordNet {
             for (int i = 0; i < G.V(); i++) {
                 DirectedDFS dfs = new DirectedDFS(G, i);
 
-                // its a root if theres exactly one vertice that reaches it
+                // its a root if theres exactly one vertex that reaches it
                 if (dfs.count() == 1) {
                     roots.add(i);
                 }
@@ -126,7 +129,7 @@ public class WordNet {
         }
         else {
             int ancestor = sap.ancestor(nounsToIDs.get(nounA), nounsToIDs.get(nounB));
-            return IDsToSynsets.get(ancestor);
+            return iDsToSynsets.get(ancestor);
         } 
     }
  }
